@@ -6,6 +6,8 @@ import (
 	"encoding/binary"
 	"math"
 	"math/bits"
+	"runtime"
+	"unsafe"
 )
 
 type Module struct {
@@ -41,13 +43,44 @@ func (m *Module) Xmemory() Memory {
 	return (*wasmMemory)(&m.memory)
 }
 
-//go:nosplit
-func i32(x int32) int32 { return x }
+// Compiler error if endianess is unknown.
+var _ = map[bool]struct{}{big: {}, little: {}}
+
+// go.dev/src/cmd/compile/internal/ssa/config.go
+const (
+	big = false ||
+		runtime.GOARCH == "ppc64" || runtime.GOARCH == "s390x" ||
+		runtime.GOARCH == "mips" || runtime.GOARCH == "mips64"
+
+	little = false ||
+		runtime.GOARCH == "386" || runtime.GOARCH == "amd64" ||
+		runtime.GOARCH == "arm" || runtime.GOARCH == "arm64" ||
+		runtime.GOARCH == "riscv64" || runtime.GOARCH == "wasm" ||
+		runtime.GOARCH == "ppc64le" || runtime.GOARCH == "loong64" ||
+		runtime.GOARCH == "mipsle" || runtime.GOARCH == "mips64le"
+
+	unalignedOK = false ||
+		runtime.GOARCH == "386" || runtime.GOARCH == "amd64" ||
+		runtime.GOARCH == "arm64" || runtime.GOARCH == "loong64" ||
+		runtime.GOARCH == "ppc64" || runtime.GOARCH == "ppc64le" ||
+		runtime.GOARCH == "s390x" || runtime.GOARCH == "wasm"
+)
 
 //go:nosplit
 func load64[T uint32 | uint64](mem []byte, addr T) uint64 {
-	return binary.LittleEndian.Uint64(mem[addr:])
+	if !unalignedOK {
+		return binary.LittleEndian.Uint64(mem[addr:])
+	}
+	_ = mem[uint64(addr)+7]
+	val := *(*uint64)(unsafe.Add(unsafe.Pointer(unsafe.SliceData(mem)), uintptr(addr)))
+	if big {
+		return bits.ReverseBytes64(val)
+	}
+	return val
 }
+
+//go:nosplit
+func i32(x int32) int32 { return x }
 
 func memory_grow(mem *[]byte, delta, max int64) int64 {
 	buf := *mem

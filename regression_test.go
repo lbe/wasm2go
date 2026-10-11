@@ -11,6 +11,7 @@ import (
 	provided_helper_test "github.com/ncruces/wasm2go/testdata/regression/provided_helper"
 	select_test "github.com/ncruces/wasm2go/testdata/regression/select_effect"
 	store_grow_test "github.com/ncruces/wasm2go/testdata/regression/store_grow"
+	shared_export_test "github.com/ncruces/wasm2go/testdata/regression/shared_export"
 )
 
 func Test_regression_select_effect(t *testing.T) {
@@ -130,6 +131,17 @@ func Test_regression_bulk_grow(t *testing.T) {
 		t.Fatalf("table.grow(1) = %d, want 2", got)
 	}
 	mustTrap("table.fill past grown end", func() { m.Xtfill(3, 1) })
+}
+
+func Test_regression_shared_export(t *testing.T) {
+	m := shared_export_test.New()
+	mem := m.Xmemory()
+	if mem.Waiters() == nil {
+		t.Fatal("Waiters() is nil")
+	}
+	if got := m.Xwait0(); got != 2 {
+		t.Errorf("wait0() = %d, want 2 (timed out)", got)
+	}
 }
 
 func Test_regression_provided_helper(t *testing.T) {
