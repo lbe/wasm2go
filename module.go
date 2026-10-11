@@ -402,43 +402,70 @@ func (t *translator) createMemoryTypes() []ast.Decl {
 			name = "atomic_memory_grow"
 			needsUnsafe("shared memory")
 		}
-
-		decls = append(decls, &ast.GenDecl{
-			Tok: token.TYPE,
-			Specs: []ast.Spec{&ast.TypeSpec{
-				Name: newID("wasmMemory"),
-				Type: &ast.ArrayType{Elt: newID("byte")}}},
-		}, &ast.FuncDecl{
-			Recv: &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("m")}, Type: &ast.StarExpr{X: newID("wasmMemory")}}}},
-			Name: newID("Slice"),
-			Type: &ast.FuncType{Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.StarExpr{X: &ast.ArrayType{Elt: newID("byte")}}}}}},
-			Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
-				Fun:  &ast.StarExpr{X: &ast.ArrayType{Elt: newID("byte")}},
-				Args: []ast.Expr{newID("m")}}}}}},
-		}, &ast.FuncDecl{
-			Recv: &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("m")}, Type: &ast.StarExpr{X: newID("wasmMemory")}}}},
-			Name: newID("Grow"),
-			Type: &ast.FuncType{
-				Params:  &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("delta"), newID("max")}, Type: newID("int64")}}},
-				Results: &ast.FieldList{List: []*ast.Field{{Type: newID("int64")}}}},
-			Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
-				Fun: newID(name),
-				Args: []ast.Expr{
-					&ast.CallExpr{
-						Fun:  &ast.StarExpr{X: &ast.ArrayType{Elt: newID("byte")}},
-						Args: []ast.Expr{newID("m")}},
-					newID("delta"),
-					newID("max")}}}}}}})
 		t.helpers.add(name)
 
 		if t.memory.shared {
-			decls = append(decls, &ast.FuncDecl{
-				Recv: &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("m")}, Type: &ast.StarExpr{X: newID("wasmMemory")}}}},
+			decls = append(decls, &ast.GenDecl{
+				Tok: token.TYPE,
+				Specs: []ast.Spec{&ast.TypeSpec{
+					Name: newID("wasmMemory"),
+					Type: &ast.StructType{Fields: &ast.FieldList{List: []*ast.Field{
+						{Names: []*ast.Ident{newID("memory")}, Type: &ast.StarExpr{X: &ast.ArrayType{Elt: newID("byte")}}},
+						{Names: []*ast.Ident{newID("waiters")}, Type: &ast.StarExpr{X: &ast.SelectorExpr{X: newID("sync"), Sel: newID("Map")}}},
+					}}}}},
+			}, &ast.FuncDecl{
+				Recv: &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("m")}, Type: newID("wasmMemory")}}},
+				Name: newID("Slice"),
+				Type: &ast.FuncType{Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.StarExpr{X: &ast.ArrayType{Elt: newID("byte")}}}}}},
+				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{
+					&ast.SelectorExpr{X: newID("m"), Sel: newID("memory")}}}}},
+			}, &ast.FuncDecl{
+				Recv: &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("m")}, Type: newID("wasmMemory")}}},
+				Name: newID("Grow"),
+				Type: &ast.FuncType{
+					Params:  &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("delta"), newID("max")}, Type: newID("int64")}}},
+					Results: &ast.FieldList{List: []*ast.Field{{Type: newID("int64")}}}},
+				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
+					Fun: newID(name),
+					Args: []ast.Expr{
+						&ast.SelectorExpr{X: newID("m"), Sel: newID("memory")},
+						newID("delta"),
+						newID("max")}}}}}},
+			}, &ast.FuncDecl{
+				Recv: &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("m")}, Type: newID("wasmMemory")}}},
 				Name: newID("Waiters"),
 				Type: &ast.FuncType{
 					Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.StarExpr{X: &ast.SelectorExpr{X: newID("sync"), Sel: newID("Map")}}}}}},
 				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{
-					modSel(newID("waiters"))}}}}})
+					&ast.SelectorExpr{X: newID("m"), Sel: newID("waiters")}}}}},
+			})
+		} else {
+			decls = append(decls, &ast.GenDecl{
+				Tok: token.TYPE,
+				Specs: []ast.Spec{&ast.TypeSpec{
+					Name: newID("wasmMemory"),
+					Type: &ast.ArrayType{Elt: newID("byte")}}},
+			}, &ast.FuncDecl{
+				Recv: &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("m")}, Type: &ast.StarExpr{X: newID("wasmMemory")}}}},
+				Name: newID("Slice"),
+				Type: &ast.FuncType{Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.StarExpr{X: &ast.ArrayType{Elt: newID("byte")}}}}}},
+				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
+					Fun:  &ast.StarExpr{X: &ast.ArrayType{Elt: newID("byte")}},
+					Args: []ast.Expr{newID("m")}}}}}},
+			}, &ast.FuncDecl{
+				Recv: &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("m")}, Type: &ast.StarExpr{X: newID("wasmMemory")}}}},
+				Name: newID("Grow"),
+				Type: &ast.FuncType{
+					Params:  &ast.FieldList{List: []*ast.Field{{Names: []*ast.Ident{newID("delta"), newID("max")}, Type: newID("int64")}}},
+					Results: &ast.FieldList{List: []*ast.Field{{Type: newID("int64")}}}},
+				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
+					Fun: newID(name),
+					Args: []ast.Expr{
+						&ast.CallExpr{
+							Fun:  &ast.StarExpr{X: &ast.ArrayType{Elt: newID("byte")}},
+							Args: []ast.Expr{newID("m")}},
+						newID("delta"),
+						newID("max")}}}}}}})
 		}
 	}
 	return decls
@@ -499,7 +526,18 @@ func (t *translator) createExportMethods() []ast.Decl {
 		case externMemory:
 			decl.Type.Results = &ast.FieldList{List: []*ast.Field{{Type: newID("Memory")}}}
 			if t.memory.imported {
-				decl.Body.List = []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{modSel(newID("memImp"))}}}
+				decl.Body.List = []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: newID("memImp")}}}}
+			} else if t.memory.shared {
+				decl.Body.List = []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CompositeLit{
+					Type: newID("wasmMemory"),
+					Elts: []ast.Expr{
+						&ast.KeyValueExpr{
+							Key:   newID("memory"),
+							Value: &ast.UnaryExpr{Op: token.AND, X: &ast.SelectorExpr{X: newID("m"), Sel: t.memory.id}}},
+						&ast.KeyValueExpr{
+							Key:   newID("waiters"),
+							Value: &ast.SelectorExpr{X: newID("m"), Sel: newID("waiters")}},
+					}}}}}
 			} else {
 				decl.Body.List = []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
 					Fun:  &ast.ParenExpr{X: &ast.StarExpr{X: newID("wasmMemory")}},
