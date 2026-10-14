@@ -77,7 +77,7 @@ not by how a human would read it.
 
 For some CPUs, you can generate faster code by using `unsafe`.
 Despite the scary name, the generated code abides by the
-[rules of unsafe](https://pkg.go.dev/unsafe#Pointer),
+[rules](https://pkg.go.dev/unsafe#Pointer) of `unsafe.Pointer`,
 and all memory accesses are still bounds checked.
 
 Another knob is whether to attempt to ensure float operations

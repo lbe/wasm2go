@@ -33,10 +33,15 @@ An incomplete list of libraries using wasm2go.
   Implementation of [WASI snapshot-preview1](https://github.com/WebAssembly/WASI/tree/wasi-0.1) for wasm2go.
 
 - [**github.com/lbe/go-exiftool-wasm**](https://github.com/lbe/go-exiftool-wasm) \
-  Go library that runs [exiftool](https://exiftool.org/) in-process using wasm2go with [zeroperl](https://github.com/6over3/zeroperl).
+  Go library that runs [exiftool](https://exiftool.org/) in-process
+  using wasm2go with [zeroperl](https://github.com/6over3/zeroperl).
 
 - [**github.com/msuozzo/bonsai**](https://github.com/msuozzo/bonsai) \
   Go bindings for [treesitter](https://github.com/tree-sitter/tree-sitter).
+
+- [**github.com/msuozzo/go-git2**](https://github.com/msuozzo/go-git2) \
+  Git library built on [libgit2](https://github.com/libgit2/libgit2),
+  with an API modeled on [go-git](https://github.com/go-git/go-git).
 
 - [**github.com/gregfurman/micropython-go**](https://github.com/gregfurman/micropython-go) \
   Go bindings for [MicroPython](https://github.com/micropython/micropython).
@@ -45,10 +50,12 @@ An incomplete list of libraries using wasm2go.
   Contains Go bindings for [resvg](https://github.com/linebender/resvg).
 
 - [**github.com/luist18/sqlite-vec-go**](https://github.com/luist18/sqlite-vec-go) \
-  Bindings to use [sqlite-vec](https://github.com/asg017/sqlite-vec) with [go-sqlite3](https://github.com/ncruces/go-sqlite3).
+  Bindings to use [sqlite-vec](https://github.com/asg017/sqlite-vec)
+  with [go-sqlite3](https://github.com/ncruces/go-sqlite3).
 
 - [**github.com/gen2brain/avif**](https://github.com/gen2brain/avif) \
-  Go bindings for [libavif](https://github.com/AOMediaCodec/libavif) with [aom](https://aomedia.googlesource.com/aom/) and [dav1d](https://code.videolan.org/videolan/dav1d).
+  Go bindings for [libavif](https://github.com/AOMediaCodec/libavif)
+  with [aom](https://aomedia.googlesource.com/aom/) and [dav1d](https://code.videolan.org/videolan/dav1d).
 
 - [**github.com/gen2brain/heic**](https://github.com/gen2brain/heic) \
   Go bindings for the [heic](https://crates.io/crates/heic) crate.
@@ -61,6 +68,3 @@ An incomplete list of libraries using wasm2go.
 
 - [**github.com/gen2brain/webp**](https://github.com/gen2brain/webp) \
   Go bindings for [libwebp](https://github.com/webmproject/libwebp).
-
-- [**github.com/msuozzo/go-git2**](https://github.com/msuozzo/go-git2) \
-  Git library built on [libgit2](https://github.com/libgit2/libgit2), with an API modeled on [go-git](https://github.com/go-git/go-git).

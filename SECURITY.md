@@ -31,7 +31,7 @@ native libraries are confined inside the WebAssembly software sandbox:
 ### Usage of `unsafe`
 
 When using the `-unsafe` flag, Go's `unsafe` package is used strictly for performance optimizations.
-Usage complies with the rules of [`unsafe.Pointer`](https://pkg.go.dev/unsafe#Pointer)
+Usage complies with the [rules](https://pkg.go.dev/unsafe#Pointer) of `unsafe.Pointer`
 and **does not** remove required memory bounds checks.
 
 ### Libc & Undefined Behavior
