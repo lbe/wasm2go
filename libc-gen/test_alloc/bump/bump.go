@@ -12,16 +12,16 @@ import (
 
 type Module struct {
 	memory []byte
-	maxMem int64
 }
 
 func New() *Module {
 	m := new(Module)
-	m.maxMem = 1024
 	m.memory = make([]byte, 0x20000)
 	memory_init(m.memory, data0, uint32(i32(65536)), 0, len(data0))
 	return m
 }
+
+const maxMem = 1024
 
 type Memory = interface {
 	Slice() *[]byte
@@ -63,7 +63,7 @@ func (m *Module) Xmalloc(v0 int32) int32 {
 		if uint32(v0) < uint32(v3) {
 			v5 = v3 - v0 + i32(0xffff)
 			v6 = int32(uint32(v5) >> 16)
-			t2 := int32(memory_grow(&m.memory, int64(v6), m.maxMem))
+			t2 := int32(memory_grow(&m.memory, int64(v6), maxMem))
 			v4 = t2
 			if v4 == i32(-1) {
 				goto l0

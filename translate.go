@@ -154,7 +154,9 @@ func translate(r io.Reader, w io.Writer) error {
 	if t.dylink != nil {
 		t.out.Decls = append(t.out.Decls, t.createDylinkConstants())
 	}
-
+	if t.memory != nil {
+		t.out.Decls = append([]ast.Decl{t.createMemoryConst()}, t.out.Decls...)
+	}
 	t.out.Decls = append([]ast.Decl{
 		t.createModuleStruct(),
 		t.createNewFunc()},

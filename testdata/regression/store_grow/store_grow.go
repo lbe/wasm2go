@@ -10,17 +10,18 @@ import (
 
 type Module struct {
 	memory []byte
-	maxMem int64
 }
 
 func New() *Module {
 	m := new(Module)
-	m.maxMem = 65536
 	m.memory = make([]byte, 65536)
 	return m
 }
+
+const maxMem = 65536
+
 func (m *Module) fn0() int32 {
-	_ = int32(memory_grow(&m.memory, int64(i32(1)), m.maxMem))
+	_ = int32(memory_grow(&m.memory, int64(i32(1)), maxMem))
 	return i32(12345)
 }
 func (m *Module) Xtest() int32 {

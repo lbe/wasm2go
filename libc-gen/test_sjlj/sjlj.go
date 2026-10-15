@@ -14,14 +14,12 @@ type Module struct {
 	t0               []any
 	elements         [][]any
 	memory           []byte
-	maxMem           int64
 	___stack_pointer int32
 }
 
 func New() *Module {
 	m := new(Module)
 	m.t0 = make([]any, 2)
-	m.maxMem = 65536
 	m.memory = make([]byte, 0x20000)
 	m.elements = [][]any{{m._emscripten_longjmp}}
 	table_init(m.t0, m.elements[0], i32(1), 0, len(m.elements[0]))
@@ -29,6 +27,8 @@ func New() *Module {
 	m.___stack_pointer = i32(65536)
 	return m
 }
+
+const maxMem = 65536
 
 type Memory = interface {
 	Slice() *[]byte

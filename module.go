@@ -44,9 +44,6 @@ func (t *translator) createModuleStruct() ast.Decl {
 				Names: []*ast.Ident{t.memory.id},
 				Type:  &ast.ArrayType{Elt: newID("byte")}})
 		}
-		fields = append(fields, &ast.Field{
-			Names: []*ast.Ident{newID("maxMem")},
-			Type:  newID("int64")})
 		if t.memory.shared || t.helpers.has("atomic_waiters") {
 			fields = append(fields, &ast.Field{
 				Names: []*ast.Ident{newID("waiters")},
@@ -81,6 +78,15 @@ func (t *translator) createModuleStruct() ast.Decl {
 				Name: newID("Module"),
 				Type: &ast.StructType{Fields: &ast.FieldList{List: fields}}}},
 	}
+}
+
+func (t *translator) createMemoryConst() ast.Decl {
+	return &ast.GenDecl{
+		Tok: token.CONST,
+		Specs: []ast.Spec{
+			&ast.ValueSpec{
+				Names:  []*ast.Ident{newID("maxMem")},
+				Values: []ast.Expr{uintLit(t.memory.max)}}}}
 }
 
 func (t *translator) createNewFunc() ast.Decl {
@@ -135,13 +141,6 @@ func (t *translator) createNewFunc() ast.Decl {
 	}
 	// Create owned memory.
 	if t.memory != nil {
-		body.List = append(body.List, &ast.AssignStmt{
-			Tok: token.ASSIGN,
-			Lhs: []ast.Expr{&ast.SelectorExpr{
-				X:   newID("m"),
-				Sel: newID("maxMem")}},
-			Rhs: []ast.Expr{
-				uintLit(t.memory.max)}})
 		if !t.memory.imported {
 			args := []ast.Expr{
 				&ast.ArrayType{Elt: newID("byte")},

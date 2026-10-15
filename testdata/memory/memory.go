@@ -10,16 +10,16 @@ import (
 
 type Module struct {
 	memory []byte
-	maxMem int64
 }
 
 func New() *Module {
 	m := new(Module)
-	m.maxMem = 100
 	m.memory = make([]byte, 65536)
 	memory_init(m.memory, data0, uint32(i32(0)), 0, len(data0))
 	return m
 }
+
+const maxMem = 100
 
 type Memory = interface {
 	Slice() *[]byte
@@ -34,7 +34,7 @@ func (m *wasmMemory) Grow(delta, max int64) int64 {
 	return memory_grow((*[]byte)(m), delta, max)
 }
 func (m *Module) Xwasm_grow(v0 int32) int32 {
-	t0 := int32(memory_grow(&m.memory, int64(v0), m.maxMem))
+	t0 := int32(memory_grow(&m.memory, int64(v0), maxMem))
 	return t0
 }
 func (m *Module) Xwasm_size() int32 {

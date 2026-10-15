@@ -730,9 +730,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 					Fun: &ast.SelectorExpr{
 						X:   &ast.SelectorExpr{X: newID("m"), Sel: newID("memImp")},
 						Sel: newID("Grow")},
-					Args: []ast.Expr{
-						literal0,
-						&ast.SelectorExpr{X: newID("m"), Sel: newID("maxMem")}}},
+					Args: []ast.Expr{literal0, newID("maxMem")}},
 					t.memory.stype()))
 
 			default:
@@ -742,8 +740,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 					Fun: newID("atomic_memory_grow"),
 					Args: []ast.Expr{
 						&ast.UnaryExpr{Op: token.AND, X: t.memory.selector},
-						literal0,
-						&ast.SelectorExpr{X: newID("m"), Sel: newID("maxMem")}}},
+						literal0, newID("maxMem")}},
 					t.memory.stype()))
 			}
 
@@ -759,7 +756,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 						Sel: newID("Grow")},
 					Args: []ast.Expr{
 						convert(fn.pop(), "int64"),
-						&ast.SelectorExpr{X: newID("m"), Sel: newID("maxMem")}}},
+						newID("maxMem")}},
 					t.memory.stype()))
 			} else {
 				name := "memory_grow"
@@ -773,7 +770,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 					Args: []ast.Expr{
 						&ast.UnaryExpr{Op: token.AND, X: t.memory.selector},
 						convert(fn.pop(), "int64"),
-						&ast.SelectorExpr{X: newID("m"), Sel: newID("maxMem")}}},
+						newID("maxMem")}},
 					t.memory.stype()))
 			}
 

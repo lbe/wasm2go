@@ -12,15 +12,15 @@ import (
 
 type Module struct {
 	memory []byte
-	maxMem int64
 }
 
 func New() *Module {
 	m := new(Module)
-	m.maxMem = 1024
 	m.memory = make([]byte, 0x20000)
 	return m
 }
+
+const maxMem = 1024
 
 type Memory = interface {
 	Slice() *[]byte
@@ -3044,7 +3044,7 @@ func (m *Module) _sbrk(v0 int32) int32 {
 		return t0 << 16
 	}
 	if v0&i32(-0x7fff0001) == 0 {
-		t1 := int32(memory_grow(&m.memory, int64(int32(uint32(v0)>>16)), m.maxMem))
+		t1 := int32(memory_grow(&m.memory, int64(int32(uint32(v0)>>16)), maxMem))
 		v0 = t1
 		p2 := v0 << 16
 		if v0 == i32(-1) {

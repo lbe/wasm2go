@@ -9,15 +9,15 @@ import (
 
 type Module struct {
 	memory []byte
-	maxMem int64
 }
 
 func New() *Module {
 	m := new(Module)
-	m.maxMem = 65536
 	m.memory = make([]byte, 65536)
 	return m
 }
+
+const maxMem = 65536
 
 type Memory = interface {
 	Slice() *[]byte

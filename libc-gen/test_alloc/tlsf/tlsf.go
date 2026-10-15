@@ -12,17 +12,17 @@ import (
 
 type Module struct {
 	memory           []byte
-	maxMem           int64
 	___stack_pointer int32
 }
 
 func New() *Module {
 	m := new(Module)
-	m.maxMem = 1024
 	m.memory = make([]byte, 0x20000)
 	m.___stack_pointer = i32(65536)
 	return m
 }
+
+const maxMem = 1024
 
 type Memory = interface {
 	Slice() *[]byte
@@ -178,7 +178,7 @@ func (m *Module) Xmalloc(v0 int32) int32 {
 				p1 = v2
 			}
 			v1 = int32(uint32(p1+i32(65555)) >> 16)
-			t2 := int32(memory_grow(&m.memory, int64(v1), m.maxMem))
+			t2 := int32(memory_grow(&m.memory, int64(v1), maxMem))
 			v0 = t2
 			if v0 == i32(-1) {
 				goto l0

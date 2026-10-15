@@ -10,15 +10,15 @@ import (
 
 type Module struct {
 	memory []byte
-	maxMem int64
 }
 
 func New() *Module {
 	m := new(Module)
-	m.maxMem = 65536
 	m.memory = make([]byte, 65536)
 	return m
 }
+
+const maxMem = 65536
 
 type Memory = interface {
 	Slice() *[]byte
@@ -55,7 +55,7 @@ func (m *Module) Xst64(v0 int32, v1 int64) {
 	store64(m.memory, uint32(v0), uint64(v1))
 }
 func (m *Module) Xgrow(v0 int32) int32 {
-	t0 := int32(memory_grow(&m.memory, int64(v0), m.maxMem))
+	t0 := int32(memory_grow(&m.memory, int64(v0), maxMem))
 	return t0
 }
 func (m *Module) Xmemory() Memory {
