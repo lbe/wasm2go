@@ -19,13 +19,13 @@ func Test_translate(t *testing.T) {
 	tests := []string{
 		"fib", "loops", "memory", "primes", "recursion", "stack", "table", "trig",
 		"regression/bulk_grow", "regression/oob_trap", "regression/select_effect", "regression/store_grow", "regression/tee_self_loop",
-		"regression/shared_export",
+	}
+	if *unsafe {
+		// Shared memory requires unsafe.
+		tests = append(tests, "regression/shared_export")
 	}
 	for _, name := range tests {
 		t.Run(name, func(t *testing.T) {
-			if name == "regression/shared_export" && !*unsafe {
-				t.Skip("needs -unsafe")
-			}
 			path := "testdata/" + name + "/" + filepath.Base(name)
 
 			in, err := os.Open(path + ".wasm")

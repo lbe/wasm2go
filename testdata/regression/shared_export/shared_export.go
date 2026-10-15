@@ -13,18 +13,17 @@ import (
 )
 
 type Module struct {
-	memory  []byte
-	maxMem  int64
-	waiters *sync.Map
+	wasmMemory
 }
 
 func New() *Module {
 	m := new(Module)
-	m.maxMem = 1
 	m.memory = make([]byte, 65536, 65536)
 	m.waiters = new(sync.Map)
 	return m
 }
+
+const maxMem = 1
 
 type Memory = interface {
 	Slice() *[]byte
@@ -32,17 +31,17 @@ type Memory = interface {
 	Waiters() *sync.Map
 }
 type wasmMemory struct {
-	memory  *[]byte
+	memory  []byte
 	waiters *sync.Map
 }
 
-func (m wasmMemory) Slice() *[]byte {
-	return m.memory
+func (m *wasmMemory) Slice() *[]byte {
+	return &m.memory
 }
-func (m wasmMemory) Grow(delta, max int64) int64 {
-	return atomic_memory_grow(m.memory, delta, max)
+func (m *wasmMemory) Grow(delta, max int64) int64 {
+	return atomic_memory_grow(&m.memory, delta, max)
 }
-func (m wasmMemory) Waiters() *sync.Map {
+func (m *wasmMemory) Waiters() *sync.Map {
 	return m.waiters
 }
 func (m *Module) Xwait0() int32 {
@@ -50,7 +49,7 @@ func (m *Module) Xwait0() int32 {
 	return t0
 }
 func (m *Module) Xmemory() Memory {
-	return wasmMemory{memory: &m.memory, waiters: m.waiters}
+	return &m.wasmMemory
 }
 
 // Compiler error if endianess is unknown.

@@ -136,6 +136,14 @@ func Test_regression_bulk_grow(t *testing.T) {
 func Test_regression_shared_export(t *testing.T) {
 	m := shared_export_test.New()
 	mem := m.Xmemory()
+
+	// The export must view the module's own memory, not a copy.
+	if mem.Slice() != m.Xmemory().Slice() {
+		t.Error("Slice() is not stable")
+	}
+	if got := mem.Grow(0, 1); got != 1 {
+		t.Errorf("Grow(0) = %d, want 1", got)
+	}
 	if mem.Waiters() == nil {
 		t.Fatal("Waiters() is nil")
 	}
