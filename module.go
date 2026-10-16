@@ -118,9 +118,7 @@ func (t *translator) createNewFunc() ast.Decl {
 				Type:  mangle.ID(imp.module, mangle.Exported)})
 			body.List = append(body.List, &ast.AssignStmt{
 				Tok: token.ASSIGN,
-				Lhs: []ast.Expr{&ast.SelectorExpr{
-					X:   newID("m"),
-					Sel: mangle.ID(imp.module, mangle.Internal)}},
+				Lhs: []ast.Expr{modSel(mangle.ID(imp.module, mangle.Internal))},
 				Rhs: []ast.Expr{local}})
 		}
 	}
@@ -132,7 +130,7 @@ func (t *translator) createNewFunc() ast.Decl {
 		}
 		body.List = append(body.List, &ast.AssignStmt{
 			Tok: token.ASSIGN,
-			Lhs: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: tab.id}},
+			Lhs: []ast.Expr{modSel(tab.id)},
 			Rhs: []ast.Expr{&ast.CallExpr{
 				Fun: newID("make"),
 				Args: []ast.Expr{
@@ -156,7 +154,7 @@ func (t *translator) createNewFunc() ast.Decl {
 			if t.memory.shared {
 				body.List = append(body.List, &ast.AssignStmt{
 					Tok: token.ASSIGN,
-					Lhs: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: newID("waiters")}},
+					Lhs: []ast.Expr{modSel(newID("waiters"))},
 					Rhs: []ast.Expr{&ast.CallExpr{
 						Fun:  newID("new"),
 						Args: []ast.Expr{&ast.SelectorExpr{X: newID("sync"), Sel: newID("Map")}}}}})
@@ -170,7 +168,7 @@ func (t *translator) createNewFunc() ast.Decl {
 		case externTable:
 			body.List = append(body.List, &ast.AssignStmt{
 				Tok: token.ASSIGN,
-				Lhs: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: t.tables[imp.index].id}},
+				Lhs: []ast.Expr{modSel(t.tables[imp.index].id)},
 				Rhs: []ast.Expr{&ast.CallExpr{
 					Fun: &ast.SelectorExpr{
 						X:   locals[imp.module],
@@ -186,11 +184,11 @@ func (t *translator) createNewFunc() ast.Decl {
 			}
 			body.List = append(body.List, &ast.AssignStmt{
 				Tok: token.ASSIGN,
-				Lhs: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: t.globals[imp.index].id}},
+				Lhs: []ast.Expr{modSel(t.globals[imp.index].id)},
 				Rhs: []ast.Expr{rhs}})
 
 		case externMemory:
-			expr := &ast.SelectorExpr{X: newID("m"), Sel: newID("memImp")}
+			expr := modSel(newID("memImp"))
 			body.List = append(body.List, &ast.AssignStmt{
 				Tok: token.ASSIGN,
 				Lhs: []ast.Expr{expr},
@@ -200,13 +198,13 @@ func (t *translator) createNewFunc() ast.Decl {
 						Sel: mangle.ID(imp.name, mangle.Exported)}}},
 			}, &ast.AssignStmt{
 				Tok: token.ASSIGN,
-				Lhs: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: t.memory.id}},
+				Lhs: []ast.Expr{modSel(t.memory.id)},
 				Rhs: []ast.Expr{&ast.CallExpr{Fun: &ast.SelectorExpr{X: expr, Sel: newID("Slice")}}}})
 
 			if t.memory.shared {
 				body.List = append(body.List, &ast.AssignStmt{
 					Tok: token.ASSIGN,
-					Lhs: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: newID("waiters")}},
+					Lhs: []ast.Expr{modSel(newID("waiters"))},
 					Rhs: []ast.Expr{&ast.CallExpr{Fun: &ast.SelectorExpr{X: expr, Sel: newID("Waiters")}}}})
 			}
 		}
@@ -224,7 +222,7 @@ func (t *translator) createNewFunc() ast.Decl {
 		}
 		body.List = append(body.List, &ast.AssignStmt{
 			Tok: token.ASSIGN,
-			Lhs: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: newID("elements")}},
+			Lhs: []ast.Expr{modSel(newID("elements"))},
 			Rhs: []ast.Expr{&ast.CompositeLit{
 				Type: &ast.ArrayType{Elt: &ast.ArrayType{Elt: newID("any")}},
 				Elts: elts}}})
@@ -233,12 +231,12 @@ func (t *translator) createNewFunc() ast.Decl {
 			if elem.passive || elem.declive {
 				continue
 			}
-			var tab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[elem.index].id}
+			var tab ast.Expr = modSel(t.tables[elem.index].id)
 			if t.tables[elem.index].imported {
 				tab = &ast.StarExpr{X: tab}
 			}
 			elems := &ast.IndexExpr{
-				X:     &ast.SelectorExpr{X: newID("m"), Sel: newID("elements")},
+				X:     modSel(newID("elements")),
 				Index: intLit(int64(i))}
 			t.helpers.add("table_init")
 			body.List = append(body.List,
@@ -278,10 +276,7 @@ func (t *translator) createNewFunc() ast.Decl {
 		}
 		body.List = append(body.List, &ast.AssignStmt{
 			Tok: token.ASSIGN,
-			Lhs: []ast.Expr{&ast.SelectorExpr{
-				X:   newID("m"),
-				Sel: g.id,
-			}},
+			Lhs: []ast.Expr{modSel(g.id)},
 			Rhs: []ast.Expr{g.init}})
 	}
 
@@ -443,7 +438,7 @@ func (t *translator) createMemoryTypes() []ast.Decl {
 				Type: &ast.FuncType{
 					Results: &ast.FieldList{List: []*ast.Field{{Type: &ast.StarExpr{X: &ast.SelectorExpr{X: newID("sync"), Sel: newID("Map")}}}}}},
 				Body: &ast.BlockStmt{List: []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{
-					&ast.SelectorExpr{X: newID("m"), Sel: newID("waiters")}}}}}})
+					modSel(newID("waiters"))}}}}})
 		}
 	}
 	return decls
@@ -488,7 +483,7 @@ func (t *translator) createExportMethods() []ast.Decl {
 		case externTable:
 			tab := t.tables[exp.index]
 			decl.Type.Results = &ast.FieldList{List: []*ast.Field{{Type: &ast.StarExpr{X: &ast.ArrayType{Elt: newID("any")}}}}}
-			var ret ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: tab.id}
+			var ret ast.Expr = modSel(tab.id)
 			if !tab.imported {
 				ret = &ast.UnaryExpr{Op: token.AND, X: ret}
 			}
@@ -496,7 +491,7 @@ func (t *translator) createExportMethods() []ast.Decl {
 		case externGlobal:
 			g := t.globals[exp.index]
 			decl.Type.Results = &ast.FieldList{List: []*ast.Field{{Type: &ast.StarExpr{X: g.typ.ident()}}}}
-			var ret ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: g.id}
+			var ret ast.Expr = modSel(g.id)
 			if !(g.imported && g.mutable) {
 				ret = &ast.UnaryExpr{Op: token.AND, X: ret}
 			}
@@ -504,7 +499,7 @@ func (t *translator) createExportMethods() []ast.Decl {
 		case externMemory:
 			decl.Type.Results = &ast.FieldList{List: []*ast.Field{{Type: newID("Memory")}}}
 			if t.memory.imported {
-				decl.Body.List = []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.SelectorExpr{X: newID("m"), Sel: newID("memImp")}}}}
+				decl.Body.List = []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{modSel(newID("memImp"))}}}
 			} else {
 				decl.Body.List = []ast.Stmt{&ast.ReturnStmt{Results: []ast.Expr{&ast.CallExpr{
 					Fun:  &ast.ParenExpr{X: &ast.StarExpr{X: newID("wasmMemory")}},

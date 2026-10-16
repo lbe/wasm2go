@@ -238,7 +238,7 @@ func (fn *funcCompiler) atomicNotify(name string, offset uint64) ast.Expr {
 		Fun: newID(name),
 		Args: []ast.Expr{
 			fn.memory.selector, addr, count,
-			&ast.SelectorExpr{X: newID("m"), Sel: newID("waiters")}}}
+			modSel(newID("waiters"))}}
 }
 
 func (fn *funcCompiler) atomicWait(name string, offset uint64) ast.Expr {
@@ -256,5 +256,5 @@ func (fn *funcCompiler) atomicWait(name string, offset uint64) ast.Expr {
 		Fun: newID(name),
 		Args: []ast.Expr{
 			fn.memory.selector, addr, exp, timeout,
-			&ast.SelectorExpr{X: newID("m"), Sel: newID("waiters")}}}
+			modSel(newID("waiters"))}}
 }

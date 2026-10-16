@@ -395,7 +395,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 					return err
 				}
 
-				var tab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[tableIdx].id}
+				var tab ast.Expr = modSel(t.tables[tableIdx].id)
 				if t.tables[tableIdx].imported {
 					tab = &ast.StarExpr{X: tab}
 				}
@@ -576,7 +576,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 				return err
 			}
 
-			var lhs ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.globals[i].id}
+			var lhs ast.Expr = modSel(t.globals[i].id)
 			if t.globals[i].imported {
 				lhs = &ast.StarExpr{X: lhs}
 			}
@@ -590,7 +590,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 			if err != nil {
 				return err
 			}
-			var tab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[i].id}
+			var tab ast.Expr = modSel(t.tables[i].id)
 			if t.tables[i].imported {
 				tab = &ast.StarExpr{X: tab}
 			}
@@ -601,7 +601,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 			if err != nil {
 				return err
 			}
-			var tab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[i].id}
+			var tab ast.Expr = modSel(t.tables[i].id)
 			if t.tables[i].imported {
 				tab = &ast.StarExpr{X: tab}
 			}
@@ -728,7 +728,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 			case t.memory.imported:
 				fn.push(convert(&ast.CallExpr{
 					Fun: &ast.SelectorExpr{
-						X:   &ast.SelectorExpr{X: newID("m"), Sel: newID("memImp")},
+						X:   modSel(newID("memImp")),
 						Sel: newID("Grow")},
 					Args: []ast.Expr{literal0, newID("maxMem")}},
 					t.memory.stype()))
@@ -752,7 +752,7 @@ func (t *translator) readCodeForFunction(fn *funcCompiler) error {
 			if fn.memory.imported {
 				fn.push(convert(&ast.CallExpr{
 					Fun: &ast.SelectorExpr{
-						X:   &ast.SelectorExpr{X: newID("m"), Sel: newID("memImp")},
+						X:   modSel(newID("memImp")),
 						Sel: newID("Grow")},
 					Args: []ast.Expr{
 						convert(fn.pop(), "int64"),

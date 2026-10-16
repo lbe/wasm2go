@@ -118,7 +118,7 @@ func (t *translator) readOpcodeExtended(fn *funcCompiler) error {
 		src := fn.pop()
 		dst := fn.pop()
 		fn.helpers.add("table_init")
-		var tab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[tableIdx].id}
+		var tab ast.Expr = modSel(t.tables[tableIdx].id)
 		if t.tables[tableIdx].imported {
 			tab = &ast.StarExpr{X: tab}
 		}
@@ -128,7 +128,7 @@ func (t *translator) readOpcodeExtended(fn *funcCompiler) error {
 				Args: []ast.Expr{
 					tab,
 					&ast.IndexExpr{
-						X:     &ast.SelectorExpr{X: newID("m"), Sel: newID("elements")},
+						X:     modSel(newID("elements")),
 						Index: uintLit(elemIdx)},
 					dst, src, n}}})
 
@@ -140,7 +140,7 @@ func (t *translator) readOpcodeExtended(fn *funcCompiler) error {
 		fn.emit(&ast.AssignStmt{
 			Tok: token.ASSIGN,
 			Lhs: []ast.Expr{&ast.IndexExpr{
-				X:     &ast.SelectorExpr{X: newID("m"), Sel: newID("elements")},
+				X:     modSel(newID("elements")),
 				Index: uintLit(idx)}},
 			Rhs: []ast.Expr{newID("nil")}})
 
@@ -157,11 +157,11 @@ func (t *translator) readOpcodeExtended(fn *funcCompiler) error {
 		src := fn.pop()
 		dst := fn.pop()
 		fn.helpers.add("table_copy")
-		var dstTab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[dstIdx].id}
+		var dstTab ast.Expr = modSel(t.tables[dstIdx].id)
 		if t.tables[dstIdx].imported {
 			dstTab = &ast.StarExpr{X: dstTab}
 		}
-		var srcTab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[srcIdx].id}
+		var srcTab ast.Expr = modSel(t.tables[srcIdx].id)
 		if t.tables[srcIdx].imported {
 			srcTab = &ast.StarExpr{X: srcTab}
 		}
@@ -178,7 +178,7 @@ func (t *translator) readOpcodeExtended(fn *funcCompiler) error {
 		delta := fn.pop()
 		val := fn.pop()
 		fn.helpers.add("table_grow")
-		var tab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[idx].id}
+		var tab ast.Expr = modSel(t.tables[idx].id)
 		if !t.tables[idx].imported {
 			tab = &ast.UnaryExpr{Op: token.AND, X: tab}
 		}
@@ -193,7 +193,7 @@ func (t *translator) readOpcodeExtended(fn *funcCompiler) error {
 		if err != nil {
 			return err
 		}
-		var tab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[idx].id}
+		var tab ast.Expr = modSel(t.tables[idx].id)
 		if t.tables[idx].imported {
 			tab = &ast.StarExpr{X: tab}
 		}
@@ -211,7 +211,7 @@ func (t *translator) readOpcodeExtended(fn *funcCompiler) error {
 		val := fn.pop()
 		dest := fn.pop()
 		fn.helpers.add("table_fill")
-		var tab ast.Expr = &ast.SelectorExpr{X: newID("m"), Sel: t.tables[idx].id}
+		var tab ast.Expr = modSel(t.tables[idx].id)
 		if t.tables[idx].imported {
 			tab = &ast.StarExpr{X: tab}
 		}

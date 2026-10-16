@@ -493,7 +493,7 @@ func (t *translator) readImportSection() error {
 
 			call := &ast.CallExpr{
 				Fun: &ast.SelectorExpr{
-					X:   &ast.SelectorExpr{X: newID("m"), Sel: mangle.ID(mod, mangle.Internal)},
+					X:   modSel(mangle.ID(mod, mangle.Internal)),
 					Sel: mangle.ID(name, mangle.Exported)},
 				Args: args,
 			}
@@ -533,7 +533,7 @@ func (t *translator) readImportSection() error {
 				imported: true,
 				shared:   shared,
 				is64:     is64,
-				selector: &ast.StarExpr{X: &ast.SelectorExpr{X: newID("m"), Sel: id}}}
+				selector: &ast.StarExpr{X: modSel(id)}}
 			t.imports = append(t.imports, importDef{
 				module: mod,
 				name:   name,
@@ -682,7 +682,7 @@ func (t *translator) readMemorySection() error {
 		max:      max,
 		shared:   shared,
 		is64:     is64,
-		selector: &ast.SelectorExpr{X: newID("m"), Sel: id}}
+		selector: modSel(id)}
 	return err
 }
 

@@ -665,7 +665,7 @@ func convert(expr ast.Expr, types ...string) ast.Expr {
 // Constructs an expression that you should use to call the module function id
 // while allowing late binding of id, as well as removing the receiver.
 func latecall(id *ast.Ident) ast.Expr {
-	return &ast.ParenExpr{X: &ast.SelectorExpr{X: newID("m"), Sel: id}}
+	return &ast.ParenExpr{X: modSel(id)}
 }
 
 func islit(expr ast.Expr, typ string) (int64, bool) {

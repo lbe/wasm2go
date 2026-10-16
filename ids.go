@@ -25,7 +25,8 @@ import (
 //	- elements
 //	- memory
 //
-// Function code may have:
+// Method code may have:
+//  - module selector (m)
 //	- local variables, arguments (v+number)
 //	- materialized temporaries (t+number)
 //	- temporary variables (p+number)
@@ -61,4 +62,8 @@ func tempVar(i int) *ast.Ident {
 func labelId(i int) *ast.Ident {
 	// Labels can be relabeled, merged; don't cache!
 	return ast.NewIdent("l" + strconv.Itoa(i))
+}
+
+func modSel(id *ast.Ident) *ast.SelectorExpr {
+	return &ast.SelectorExpr{X: newID("m"), Sel: id}
 }

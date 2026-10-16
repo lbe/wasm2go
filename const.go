@@ -84,10 +84,7 @@ func (t *translator) globalGet() (ast.Expr, bool, error) {
 		return nil, false, err
 	}
 	global := t.globals[v]
-	var expr ast.Expr = &ast.SelectorExpr{
-		X:   newID("m"),
-		Sel: global.id,
-	}
+	var expr ast.Expr = modSel(global.id)
 	if global.imported && global.mutable {
 		expr = &ast.StarExpr{X: expr}
 	}
